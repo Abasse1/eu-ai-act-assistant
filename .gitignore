@@ -1,33 +1,48 @@
 
-# Secrets et variables d'environnement
+# Environment
 .env
 .env.*
 !.env.example
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
 
 # .NET
 **/bin/
 **/obj/
 **/TestResults/
-*.user
-*.suo
-*.cache
+*.nupkg
+**/Migrations
 
-# Angular / Node.js
+# Node / Angular
 **/node_modules/
 **/dist/
 **/.angular/
-**/coverage/
 npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
 
 # Python
 **/__pycache__/
 **/*.py[cod]
 **/.venv/
-**/venv/
-**/env/
 **/.pytest_cache/
 **/.mypy_cache/
 **/.ruff_cache/
+**/.coverage
 **/htmlcov/
+**/*.egg-info/
+**/build/
+
+# uv
+**/uv.lock
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
