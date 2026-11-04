@@ -1,0 +1,91 @@
+openapi: 3.1.0
+info:
+  title: EU AI Act Assistant - Internal AI API
+  version: 1.0.0
+
+paths:
+  /internal/v1/assistant/turns:
+    post:
+      operationId: processAssistantTurn
+      summary: Process an assistant conversation turn
+      description: Processes a user message and streams the assistant response.
+      security:
+        - serviceBearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Unique key used to prevent duplicate processing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistantTurnRequest"
+      responses:
+        "200":
+          description: Assistant response streamed through Server-Sent Events.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              examples:
+                response:
+                  value: |
+                    event: content.delta
+                    data: {"type":"content.delta","content":"The AI Act establishes..."}
+
+                    event: citation
+                    data: {"type":"citation","citation":{}}
+
+                    event: completed
+                    data: {"type":"completed","answer":{}}
+
+        "401":
+          description: Invalid service authentication.
+        "403":
+          description: Service is not authorized.
+        "409":
+          description: Idempotency key conflict.
+        "429":
+          description: Processing quota exceeded.
+        "503":
+          description: AI service unavailable.
+
+components:
+  securitySchemes:
+    serviceBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AssistantTurnRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - organization_id
+        - user_id
+        - conversation_id
+        - message_id
+        - content
+      properties:
+        organization_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        conversation_id:
+          type: string
+          format: uuid
+        message_id:
+          type: string
+          format: uuid
+        content:
+          type: string
+          minLength: 1
+          maxLength: 4000
