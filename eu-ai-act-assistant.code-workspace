@@ -1,0 +1,25 @@
+{
+    "folders": [
+        {
+            "name": "Monorepo",
+            "path": "."
+        },
+        {
+            "name": "AI Service",
+            "path": "apps/ai/ai-service"
+        },
+        {
+            "name": "MCP Server",
+            "path": "apps/ai/mcp-server"
+        },
+        {
+            "name": "Ingestion Worker",
+            "path": "apps/ai/ingestion-worker"
+        }
+    ],
+    "settings": {
+        "python.analysis.typeCheckingMode": "strict",
+        "python.analysis.autoImportCompletions": true,
+        "python-envs.terminal.autoActivationType": "command"
+    }
+}

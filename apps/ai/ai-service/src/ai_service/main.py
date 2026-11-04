@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from fastapi import FastAPI
 import uvicorn
@@ -8,6 +8,16 @@ from ai_service.config import get_settings
 from ai_service.api.router import api_router
 from ai_service.logging_config import configure_logging
 from ai_service.observability import configure_observability
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+    # Perform any startup tasks here
+    yield
+    # Perform any shutdown tasks here
+    app.state.meter_provider.shutdown()
+    app.state.tracer_provider.shutdown()
+    app.state.logger_provider.shutdown()
 
 
 def create_app() -> FastAPI:
@@ -27,16 +37,6 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    # Perform any startup tasks here
-    yield
-    # Perform any shutdown tasks here
-    app.state.meter_provider.shutdown()
-    app.state.tracer_provider.shutdown()
-    app.state.logger_provider.shutdown()
 
 
 def main() -> None:
