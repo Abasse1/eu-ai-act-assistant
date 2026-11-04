@@ -1,13 +1,24 @@
+
 [project]
 name = "ai-service"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI service for the EU AI Act conversational assistant"
 readme = "README.md"
 authors = [
-    { name = "Saindou Houmadi ABASSE", email = "abasse.etude@gmail.com" }
+    { name = "Saindou Houmadi ABASSE", email = "" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.162.0",
+    "langfuse>=5.1.0",
+    "opentelemetry-api>=1.45.2",
+    "opentelemetry-exporter-otlp>=1.45.2",
+    "opentelemetry-instrumentation-fastapi>=0.66b2",
+    "opentelemetry-instrumentation-httpx>=0.66b2",
+    "opentelemetry-sdk>=1.45.2",
+    "pydantic-settings>=2.16.2",
+    "uvicorn[standard]>=0.54.0",
+]
 
 [project.scripts]
 ai-service = "ai_service:main"
@@ -15,3 +26,35 @@ ai-service = "ai_service:main"
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src"]
+warn_unreachable = true
+show_error_codes = true
