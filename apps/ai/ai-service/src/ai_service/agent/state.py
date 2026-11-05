@@ -9,7 +9,7 @@ class AssistantTurnState(TypedDict):
     user_id: str
     conversation_id: str
     message_id: str
-    sanitized_question: str
+    question: str
 
     retrieved_citations: NotRequired[list[Citation]]
     answer: NotRequired[str]
