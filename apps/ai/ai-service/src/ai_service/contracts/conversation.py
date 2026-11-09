@@ -1,7 +1,11 @@
 from datetime import datetime
+from typing_extensions import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+
+
+Language = Literal["fr", "en"]
 
 
 class MessageInput(BaseModel):

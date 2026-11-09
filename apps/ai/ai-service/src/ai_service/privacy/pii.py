@@ -7,6 +7,8 @@ from presidio_anonymizer.entities import RecognizerResult as AnonymizerRecognize
 from presidio_analyzer.predefined_recognizers import EmailRecognizer, PhoneRecognizer
 from presidio_anonymizer.entities import OperatorConfig
 
+from ai_service.contracts.conversation import Language
+
 
 def _create_anonymizer() -> Any:
     return AnonymizerEngine()  # type: ignore[no-untyped-call]
@@ -48,7 +50,7 @@ class PiiProtectionService:
         )
         self._anonymizer = _create_anonymizer()
 
-    def anonymize(self, text: str, language: str) -> str:
+    def anonymize(self, text: str, language: Language) -> str:
         if language not in {"en", "fr"}:
             raise ValueError(f"Unsupported language: {language}")
 

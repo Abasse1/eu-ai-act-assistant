@@ -1,5 +1,6 @@
 import pytest
 
+from ai_service.contracts.conversation import Language
 from ai_service.privacy.pii import PiiProtectionService
 
 
@@ -18,7 +19,7 @@ def pii_service() -> PiiProtectionService:
     ],
 )
 def test_anonymize_personal_information(
-    pii_service: PiiProtectionService, text: str, language: str, sensitive_value: str
+    pii_service: PiiProtectionService, text: str, language: Language, sensitive_value: str
 ) -> None:
     anonymized = pii_service.anonymize(text, language)
 

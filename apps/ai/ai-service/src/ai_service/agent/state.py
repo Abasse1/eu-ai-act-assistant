@@ -1,17 +1,20 @@
 from typing import NotRequired, TypedDict
+from ai_service.contracts.retrieval import RetrievedDocument
+from ai_service.contracts.routing import RequestIntent
 
 from ai_service.contracts.conversation import Citation
 from ai_service.contracts.streaming import FieldEvent
 
 
 class AssistantTurnState(TypedDict):
-    organisation_id: str
+    organization_id: str
     user_id: str
     conversation_id: str
     message_id: str
     question: str
 
-    retrieved_citations: NotRequired[list[Citation]]
+    retrieved_documents: NotRequired[list[RetrievedDocument]]
     answer: NotRequired[str]
     citations: NotRequired[list[Citation]]
     failure: NotRequired[FieldEvent]
+    intent: NotRequired[RequestIntent]

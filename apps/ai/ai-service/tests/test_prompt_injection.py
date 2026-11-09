@@ -28,7 +28,7 @@ def test_detect_legitimate_injection() -> None:
 
 def test_guard_reject_prompt_injection() -> None:
     state: AssistantTurnState = {
-        "organisation_id": "org1",
+        "organization_id": "org1",
         "user_id": "user-1",
         "conversation_id": "conversation-1",
         "message_id": "message-1",

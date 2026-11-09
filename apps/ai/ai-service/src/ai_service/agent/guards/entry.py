@@ -1,4 +1,5 @@
 from ai_service.agent.state import AssistantTurnState
+from ai_service.contracts.conversation import Language
 from ai_service.privacy.pii import PiiProtectionService
 
 
@@ -9,7 +10,7 @@ class InvalidUserInputError(ValueError):
 def guard_entry(
     state: AssistantTurnState,
     pii_service: PiiProtectionService,
-    language: str,
+    language: Language,
 ) -> AssistantTurnState:
     question = state["question"].strip()
 
