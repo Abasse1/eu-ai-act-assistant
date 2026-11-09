@@ -14,7 +14,7 @@ class InvalidAnswerCitationError(ValueError):
     """Raised when an answer rerefence a citation absent from retrieved documents."""
 
 
-def valid_answer_citations(answer: AssistantAnswer, documents: list[RetrievedDocument]) -> None:
+def validate_answer_citations(answer: AssistantAnswer, documents: list[RetrievedDocument]) -> None:
     avalable_citations = [document.citation for document in documents]
 
     for citation in answer.citations:

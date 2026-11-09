@@ -1,4 +1,5 @@
 from typing import Any, cast
+from typing_extensions import Protocol
 
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_analyzer.nlp_engine import NlpEngineProvider
@@ -12,6 +13,12 @@ from ai_service.contracts.conversation import Language
 
 def _create_anonymizer() -> Any:
     return AnonymizerEngine()  # type: ignore[no-untyped-call]
+
+
+class PiiAnonymizer(Protocol):
+    def anonymize(self, text: str, language: Language) -> str:
+        """Anonymize personal data in the provided text."""
+        ...
 
 
 class PiiProtectionService:

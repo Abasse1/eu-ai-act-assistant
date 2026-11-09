@@ -96,6 +96,7 @@ async def test_regulatory_question_retrieves_documents_and_generates_answer() ->
         article="Regulation (EU) 2024/1689",
         version="2024-07-12",
         source_url=HttpUrl("https://eur-lex.europa.eu/eli/reg/2024/1689/oj"),
+        document_title="The document 1",
     )
 
     document = RetrievedDocument(citation=citation, score=0.92)
@@ -178,6 +179,7 @@ async def test_regulatory_question_rejects_unsupported_citations() -> None:
         article="Regulation (EU) 2024/1689",
         version="2024-07-12",
         source_url=HttpUrl("https://eur-lex.europa.eu/eli/reg/2024/1689/oj"),
+        document_title=" The document",
     )
 
     answer_generator = FakeAnswerGenerator(
@@ -196,6 +198,7 @@ async def test_regulatory_question_rejects_unsupported_citations() -> None:
                     article="Regulation (EU) 2024/1689",
                     version="2024-07-12",
                     source_url=HttpUrl("https://eur-lex.europa.eu/eli/reg/2024/1689/oj"),
+                    document_title="The document",
                 ),
                 score=0.92,
             )

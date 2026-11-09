@@ -2,13 +2,13 @@ from ai_service.agent.guards.entry import guard_entry
 from ai_service.agent.guards.injection import guard_prompt_injection
 from ai_service.agent.state import AssistantTurnState
 from ai_service.contracts.conversation import Language
-from ai_service.privacy.pii import PiiProtectionService
+from ai_service.privacy.pii import PiiAnonymizer
 from ai_service.security.prompt_injection import PromptInjectionDetector
 
 
 def guard_input(
     state: AssistantTurnState,
-    pii_service: PiiProtectionService,
+    pii_service: PiiAnonymizer,
     injection_detector: PromptInjectionDetector,
     language: Language,
 ) -> AssistantTurnState:

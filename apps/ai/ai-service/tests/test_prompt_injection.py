@@ -1,7 +1,6 @@
 import pytest
 
-from ai_service.agent.guards.entry import InvalidUserInputError
-from ai_service.agent.guards.injection import guard_prompt_injection
+from ai_service.agent.guards.injection import PromptInjectionDetectedError, guard_prompt_injection
 from ai_service.agent.state import AssistantTurnState
 from ai_service.security.huggingface_detector import HuggingFacePromptInjectionDetector
 
@@ -37,5 +36,5 @@ def test_guard_reject_prompt_injection() -> None:
 
     detector = HuggingFacePromptInjectionDetector()
 
-    with pytest.raises(InvalidUserInputError, match="malicious instructions"):
+    with pytest.raises(PromptInjectionDetectedError, match="malicious instructions"):
         guard_prompt_injection(state, detector)

@@ -30,7 +30,7 @@ class FieldEvent(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     type: Literal["field"] = "field"
-    code: Literal["provider_unavailable", "processing_failed"]
+    code: Literal["provider_unavailable", "processing_failed", "request_rejected"]
     message: str
     retryable: bool
 

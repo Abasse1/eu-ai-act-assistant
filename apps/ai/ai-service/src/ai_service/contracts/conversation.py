@@ -26,7 +26,7 @@ class Citation(BaseModel):
     """
 
     model_config = ConfigDict(extra="forbid")
-
+    document_title: str | None
     reference: str
     passage: str
     article: str | None = None
@@ -48,7 +48,7 @@ class AssistantAnswer(BaseModel):
 class AssistantTurnRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    organisation_id: UUID
+    organization_id: UUID
     user_id: UUID
     conversation_id: UUID
     message_id: UUID
