@@ -1,13 +1,11 @@
-from datetime import UTC, date, datetime
 from typing import Final
 
 import httpx
-from pydantic import HttpUrl
 
-from ingestion_worker.domain.documents import DocumentLanguage, SourceDocument
+from ingestion_worker.domain.documents import DocumentLanguage
 
 CELEX: Final = "02024R1689-20260727"
-CONSOLIDATION_DATE: Final = date(2026, 7, 27)
+CONSOLIDATION_DATE: Final = __import__("datetime").date(2026, 7, 27)
 
 
 class EurLexSource:
@@ -17,23 +15,8 @@ class EurLexSource:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
 
-    async def fetch(self, language: DocumentLanguage) -> SourceDocument:
-        url = f"{self.BASE_URL}/{language.upper()}/TXT/HTML/"
-        response = await self._client.get(url, params={"uri": f"CELEX:{CELEX}"})
-        response.raise_for_status()
-
-        content_html = response.text
-        if not content_html.strip():
-            raise ValueError(f"EUR-Lex returned an empty document for language '{language}'.")
-
-        return SourceDocument(
-            celex=CELEX,
-            language=language,
-            consolidation_date=CONSOLIDATION_DATE,
-            source_url=HttpUrl(str(response.url)),
-            content_xml=content_html,
-            retrieved_at=datetime.now(UTC),
-        )
+    def document_url(self, language: DocumentLanguage) -> str:
+        return f"{self.BASE_URL}/{language.upper()}/TXT/?uri=CELEX:{CELEX}"
 
     async def fetch_formex(self, language: DocumentLanguage) -> bytes:
         response = await self._client.get(

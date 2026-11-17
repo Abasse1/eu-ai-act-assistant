@@ -5,33 +5,71 @@ from lxml import etree
 from lxml.etree import ElementBase
 
 from ingestion_worker.domain.documents import (
+    LegalAlinea,
+    LegalAnnex,
     LegalArticle,
+    LegalBlock,
+    LegalDivision,
     LegalProvision,
     LegalSubdivision,
     SourceDocument,
     StructuredLegalDocument,
 )
+from ingestion_worker.infrastructure.parsing.formex_blocks import FormexBlockParser
 
 XmlElement = Any
 
+
 class EurLexParser:
-    def parse(self, xml_content: bytes, document: SourceDocument) -> StructuredLegalDocument:
-        root = etree.fromstring(xml_content)
+    def __init__(self) -> None:
+        self._formex_block_parser = FormexBlockParser()
 
-        article_elements = root.xpath(".//ENACTING.TERMS//ARTICLE")
+    def parse(
+        self, xml_metadata: bytes, xml_content: bytes, document: SourceDocument
+    ) -> StructuredLegalDocument:
+        metadata_root = self._parse_xml(xml_metadata)
+        root = self._parse_xml(xml_content)
 
-        articles = [self._parse_article(element) for element in article_elements]
+        cons_doc = root.find("./CONS.DOC")
+
+        if cons_doc is None:
+            raise ValueError("Document is missing its CONS.DOC element.")
+
+        annexes = self._parse_annexes(cons_doc)
+        final = self._parse_final(cons_doc)
+
+        title_element = metadata_root.find("./PAPER/VOLUME.PAPER/ITEM.VOLUME/TITLE/TI/P")
+
+        if title_element is None:
+            raise ValueError("Document metadata is missing its official title.")
+
+        title = self._extract_metadata_title(title_element)
+        legal_value = metadata_root.findtext("./FMX/DOC.MAIN.PUB/LEGAL.VALUE")
+        document_type = self._parse_document_type(legal_value)
+
+        enacting_terms = root.find(".//ENACTING.TERMS")
+
+        if enacting_terms is None:
+            raise ValueError("Document is missing its ENACTING.TERMS element.")
+
+        body = self._parse_body_items(enacting_terms)
+
+        articles = self._collect_articles(body)
 
         if not articles:
-            raise ValueError("No legal artuicles found in the Formex document.")
+            raise ValueError("No legal articles found in the Formex document.")
 
         return StructuredLegalDocument(
             celex=document.celex,
+            title=title,
+            document_type=document_type,
             language=document.language,
             consolidation_date=document.consolidation_date,
             source_url=document.source_url,
-            articles=articles,
+            body=body,
             retrieved_at=document.retrieved_at,
+            final=final,
+            annexes=annexes,
         )
 
     def _parse_article(self, element: XmlElement) -> LegalArticle:
@@ -80,18 +118,23 @@ class EurLexParser:
     def _parse_provision_content(
         self, number: str | None, alinea_elements: list[ElementBase]
     ) -> LegalProvision:
-        texts: list[str] = []
-        subdivisions: list[LegalSubdivision] = []
+        alineas: list[LegalAlinea] = []
 
         for alinea in alinea_elements:
-            text: str = self._extract_text(alinea)
-            if text:
-                texts.append(text)
+            text = self._extract_text(alinea) or None
+            subdivisions: list[LegalSubdivision] = []
+
             for list_element in self._find_lists(alinea):
                 subdivisions.extend(self._parse_list(list_element))
-        return LegalProvision(
-            number=number, text=" ".join(texts) or None, subdivisions=subdivisions
-        )
+
+            alineas.append(
+                LegalAlinea(
+                    text=text,
+                    subdivisions=subdivisions,
+                )
+            )
+
+        return LegalProvision(number=number, alineas=alineas)
 
     def _find_lists(self, element: ElementBase) -> list[ElementBase]:
         """Find the first level of lists below an element."""
@@ -162,8 +205,141 @@ class EurLexParser:
     def _parse_alinea(self, element: ElementBase) -> LegalProvision:
         return self._parse_provision_content(number=None, alinea_elements=[element])
 
+    def _extract_metadata_title(self, element: XmlElement) -> str:
+        parts: list[str] = []
+
+        def visit(node: ElementBase) -> None:
+            if node.text:
+                parts.append(node.text)
+
+            for child in node:
+                if child.tag != "NOTE":
+                    visit(child)
+                if child.tail:
+                    parts.append(child.tail)
+
+        visit(element)
+        return self._clean_text("".join(parts))
+
+    def _parse_body_items(
+        self, parent: XmlElement, level: int = 1
+    ) -> list[LegalDivision | LegalArticle]:
+        items: list[LegalDivision | LegalArticle] = []
+
+        for child in parent:
+            if child.tag == "DIVISION":
+                items.append(self._parse_division(child, level))
+            elif child.tag == "ARTICLE":
+                items.append(self._parse_article(child))
+
+        return items
+
+    def _parse_division(self, element: ElementBase, level: int) -> LegalDivision:
+        title_element = element.find("./TITLE")
+
+        if title_element is None:
+            raise ValueError("Legal division is missing its TITLE element.")
+
+        title_paragraphs = title_element.xpath(".//P")
+
+        if title_paragraphs:
+            title = self._clean_text(
+                " ".join("".join(paragraph.itertext()) for paragraph in title_paragraphs)
+            )
+        else:
+            title = self._clean_text(" ".join(title_element.itertext()))
+
+        if not title:
+            raise ValueError("Legal division contains an empty title.")
+
+        return LegalDivision(
+            title=title,
+            level=level,
+            children=self._parse_body_items(element, level + 1),
+        )
+
+    def _collect_articles(self, items: list[LegalDivision | LegalArticle]) -> list[LegalArticle]:
+        articles: list[LegalArticle] = []
+
+        for item in items:
+            if isinstance(item, LegalArticle):
+                articles.append(item)
+            else:
+                articles.extend(self._collect_articles(item.children))
+
+        return articles
+
+    def _parse_annexes(self, cons_doc: XmlElement) -> list[LegalAnnex]:
+        annex_elements = cons_doc.findall("./CONS.ANNEX")
+        annexes: list[LegalAnnex] = []
+
+        for element in annex_elements:
+            title_element = element.find("./TITLE")
+
+            if title_element is None:
+                raise ValueError("Legal annex is missing its TITLE element.")
+
+            title = self._extract_annex_title(title_element)
+            contents = element.find("./CONTENTS")
+
+            if contents is None:
+                raise ValueError(f"Legal annex '{title}' is missing its CONTENTS element.")
+
+            blocks = [
+                self._formex_block_parser.parse(child)
+                for child in contents
+                if isinstance(child.tag, str)
+            ]
+
+            annexes.append(
+                LegalAnnex(
+                    title=title,
+                    blocks=blocks,
+                )
+            )
+
+        return annexes
+
+    def _extract_annex_title(self, element: XmlElement) -> str:
+        paragraphs = element.xpath("./TI/P | ./STI/P")
+
+        if paragraphs:
+            return self._clean_text(
+                " ".join("".join(paragraph.itertext()) for paragraph in paragraphs)
+            )
+
+        return self._clean_text(" ".join(element.itertext()))
+
+    def _parse_final(self, cons_doc: XmlElement) -> LegalBlock | None:
+        element = cons_doc.find("./FINAL")
+
+        if element is None:
+            return None
+
+        return self._formex_block_parser.parse(element)
+
     @staticmethod
     def _clean_text(text: str) -> str:
         normalized = unicodedata.normalize("NFC", text)
         normalized = normalized.replace("\xa0", " ").replace("\u202f", " ")
         return " ".join(normalized.split())
+
+    @staticmethod
+    def _parse_document_type(legal_value: str | None) -> str:
+        document_types = {"REG": "regulation"}
+
+        if legal_value is None or legal_value not in document_types:
+            raise ValueError(f"Unsupported or missing EUR-Lex legal value: {legal_value}")
+
+        return document_types[legal_value]
+
+    @staticmethod
+    def _parse_xml(content: bytes) -> XmlElement:
+        parser = etree.XMLParser(
+            resolve_entities=False,
+            no_network=True,
+            load_dtd=False,
+            recover=False,
+            huge_tree=False,
+        )
+        return etree.fromstring(content, parser=parser)
