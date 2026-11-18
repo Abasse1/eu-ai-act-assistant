@@ -1,8 +1,7 @@
-from typing import Protocol
+from typing import AsyncIterator, Protocol
 
-from ingestion_worker.application.projection.models import LegalContentUnit
-from ingestion_worker.domain.embeddings import Embedding
+from ingestion_worker.application.projection.models import GeneratedEmbeddingBatch, LegalContentUnit
 
 
 class EmbeddingGenerator(Protocol):
-    async def generate(self, units: list[LegalContentUnit]) -> list[Embedding]: ...
+     def generate(self, units: list[LegalContentUnit]) -> AsyncIterator[GeneratedEmbeddingBatch]: ...

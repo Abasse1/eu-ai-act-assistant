@@ -1,9 +1,11 @@
+from dataclasses import dataclass
 from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from ingestion_worker.domain.documents import DocumentLanguage
+from ingestion_worker.domain.embeddings import Embedding
 
 LegalContentUnitType = Literal["article", "subdivision", "annex_block", "table_row", "final"]
 
@@ -26,3 +28,8 @@ class LegalContentUnit(BaseModel):
     consolidation_date: date
     source_url: HttpUrl
     metadata: dict[str, str] = Field(default_factory=dict)
+
+@dataclass(frozen=True, slots=True)
+class GeneratedEmbeddingBatch:
+    units: list[LegalContentUnit]
+    embeddings: list[Embedding]

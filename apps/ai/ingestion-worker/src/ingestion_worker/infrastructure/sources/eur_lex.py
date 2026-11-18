@@ -1,16 +1,17 @@
+from datetime import date
 from typing import Final
 
 import httpx
 
 from ingestion_worker.domain.documents import DocumentLanguage
 
-CELEX: Final = "02024R1689-20260727"
-CONSOLIDATION_DATE: Final = __import__("datetime").date(2026, 7, 27)
+CELEX: Final[str] = "02024R1689-20260727"
+CONSOLIDATION_DATE: Final[date] = date(2026, 7, 27)
 
 
 class EurLexSource:
-    BASE_URL: Final = "https://eur-lex.europa.eu/legal-content"
-    CELLAR_BASE_URL: Final = "https://publications.europa.eu/resource"
+    BASE_URL: Final[str] = "https://eur-lex.europa.eu/legal-content"
+    CELLAR_BASE_URL: Final[str] = "https://publications.europa.eu/resource"
 
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
@@ -30,6 +31,6 @@ class EurLexSource:
         response.raise_for_status()
 
         if not response.content:
-            raise ValueError(f"Cellar returned an empty Formex document for '{language}'.")
+            raise ValueError(f"Cellar returned an empty Formex document for '{language}'")
 
         return response.content

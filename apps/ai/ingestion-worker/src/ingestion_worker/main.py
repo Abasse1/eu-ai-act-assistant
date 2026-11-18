@@ -1,53 +1,54 @@
 import asyncio
+import logging
 
-import httpx
-
-from ingestion_worker.application.ingest_document import (
-    ingest_document as ingest_document_use_case,
-)
-from ingestion_worker.domain.documents import DocumentLanguage, LegalDivision
+from ingestion_worker.application.index_document import index_document
+from ingestion_worker.application.projection.legal_document_projector import LegalDocumentProjector
+from ingestion_worker.bootstrap import build_dependencies
+from ingestion_worker.config import settings
+from ingestion_worker.domain.documents import DocumentLanguage
 from ingestion_worker.infrastructure.parsing.eur_lex_parser import EurLexParser
-from ingestion_worker.infrastructure.parsing.formex_extractor import FormexExtractor
-from ingestion_worker.infrastructure.sources.eur_lex import EurLexSource
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 
 async def main() -> None:
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        source = EurLexSource(client)
-        extractor = FormexExtractor()
-        parser = EurLexParser()
+    dependencies = build_dependencies()
 
-        languages: tuple[DocumentLanguage, ...] = ("fr", "en")
+    try:
+        language: DocumentLanguage = settings.document_language
 
-        for language in languages:
-            document = await ingest_document_use_case(
-                language=language,
-                source=source,
-                extractor=extractor,
-                parser=parser,
-            )
-            print(f"\n=== {document.language.upper()} STRUCTURE ===")
+        logger.info(
+            "Starting document indexing: language=%s",
+            language,
+        )
 
-            top_level_divisions = [
-                item for item in document.body if isinstance(item, LegalDivision)
-            ]
+        indexed_count = await index_document(
+            language=language,
+            source=dependencies.eur_lex_source,
+            extractor=dependencies.formex_extractor,
+            parser=EurLexParser(),
+            projector=LegalDocumentProjector(),
+            embedding_generator=dependencies.embedding_generator,
+            vector_indexer=dependencies.vector_indexer,
+            collection_publisher=dependencies.collection_publisher,
+        )
 
-            nested_divisions = [
-                child
-                for division in top_level_divisions
-                for child in division.children
-                if isinstance(child, LegalDivision)
-            ]
+        logger.info(
+            "Document indexing completed successfully: %d units indexed",
+            indexed_count,
+        )
 
-            print(f"Top-level divisions: {len(top_level_divisions)}")
-            print(f"Nested divisions: {len(nested_divisions)}")
-            print(f"Total articles: {len(document.articles)}")
+    except Exception:
+        logger.exception("Document indexing failed")
+        raise
 
-            for division in top_level_divisions:
-                print(f"\n{division.title} (level={division.level})")
-
-                for child in division.children:
-                    if isinstance(child, LegalDivision):
-                        print(f"  {child.title} (level={child.level})")
+    finally:
+        await dependencies.close()
 
 
 if __name__ == "__main__":

@@ -69,6 +69,26 @@ services:
         - prometheus
         - tempo
       networks: [eu_ai_act_network]
+  
+    qdrant:
+      image: qdrant/qdrant:latest
+      ports:
+        - "6333:6333"
+        - "6334:6334"
+      volumes: 
+        - qdrant_data:/qdrant/storage
+      restart: unless-stopped
+      networks: [eu_ai_act_network]
+    
+    ollama:
+      image: ollama/ollama:latest
+      ports:
+        - "11434:11434"
+      volumes: 
+        - ollama_data:/root/.ollama
+      restart: unless-stopped
+      networks: [eu_ai_act_network]
+
 
 
 networks:
@@ -80,3 +100,5 @@ volumes:
   tempo_data:
   prometheus_data:
   grafana_data:
+  qdrant_data: 
+  ollama_data:
