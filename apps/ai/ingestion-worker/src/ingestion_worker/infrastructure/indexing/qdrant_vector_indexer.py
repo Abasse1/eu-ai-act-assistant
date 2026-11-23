@@ -27,6 +27,11 @@ class QdrantVectorIndexer(VectorIndexer):
                 distance=models.Distance.COSINE,
             ),
         )
+        await self._client.create_payload_index(
+            collection_name=collection_name,
+            field_name="language",
+            field_schema=models.PayloadSchemaType.KEYWORD,
+            wait=True)
 
     async def upsert(
         self,

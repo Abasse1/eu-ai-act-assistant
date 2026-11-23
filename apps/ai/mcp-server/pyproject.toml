@@ -8,7 +8,12 @@ authors = [
     { name = "Saindou Houmadi ABASSE", email = "" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp>=2.3.0",
+    "pydantic-settings>=2.16.3",
+    "qdrant-client>=1.20.0",
+]
 
 [project.scripts]
 mcp-server = "mcp_server:main"
