@@ -1,6 +1,5 @@
 from collections.abc import AsyncIterator
-
-from typing_extensions import Protocol
+from typing import Protocol
 
 from ai_service.agent.state import AssistantTurnState
 from ai_service.contracts.conversation import AssistantTurnRequest

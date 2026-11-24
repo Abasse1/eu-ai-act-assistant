@@ -2,6 +2,7 @@ import asyncio
 from typing import Literal
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from ai_service.agent.generation import validate_answer_citations
 from ai_service.agent.guards.entry import InvalidUserInputError
@@ -12,6 +13,7 @@ from ai_service.agent.responses import (
     get_standard_disclaimer,
     get_standard_response,
 )
+from ai_service.agent.retrieval import DocumentRetriever
 from ai_service.agent.routing import RequestRouter
 from ai_service.agent.state import AssistantTurnState
 from ai_service.contracts.conversation import Language
@@ -19,9 +21,7 @@ from ai_service.contracts.generation import AnswerGenerator
 from ai_service.contracts.routing import RequestIntent
 from ai_service.contracts.streaming import FieldEvent
 from ai_service.privacy.pii import PiiAnonymizer
-from ai_service.security.prompt_injection import PromptInjectionDetector
-from langgraph.graph.state import CompiledStateGraph
-from ai_service.agent.retrieval import DocumentRetriever
+from ai_service.application.ports.prompt_injection import PromptInjectionDetector
 
 
 def route_by_intent(state: AssistantTurnState) -> RequestIntent:

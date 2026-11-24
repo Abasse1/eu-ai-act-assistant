@@ -3,7 +3,7 @@ from ai_service.agent.guards.injection import guard_prompt_injection
 from ai_service.agent.state import AssistantTurnState
 from ai_service.contracts.conversation import Language
 from ai_service.privacy.pii import PiiAnonymizer
-from ai_service.security.prompt_injection import PromptInjectionDetector
+from ai_service.application.ports.prompt_injection import PromptInjectionDetector
 
 
 def guard_input(

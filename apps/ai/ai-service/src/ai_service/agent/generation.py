@@ -5,7 +5,7 @@ from ai_service.contracts.retrieval import RetrievedDocument
 
 
 class AnswerGenerator(Protocol):
-    async def generator(self, question: str, documents: list[RetrievedDocument]) -> AssistantAnswer:
+    async def generate(self, question: str, documents: list[RetrievedDocument]) -> AssistantAnswer:
         """Generate a ground answer from the user's question and retrieved documents."""
         ...
 
@@ -15,10 +15,10 @@ class InvalidAnswerCitationError(ValueError):
 
 
 def validate_answer_citations(answer: AssistantAnswer, documents: list[RetrievedDocument]) -> None:
-    avalable_citations = [document.citation for document in documents]
+    available_citations = [document.citation for document in documents]
 
     for citation in answer.citations:
-        if citation not in avalable_citations:
+        if citation not in available_citations:
             raise InvalidAnswerCitationError(
                 f"Generated answer contains an unsupported citation: {citation.reference}"
             )

@@ -2,7 +2,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 RequestIntent = Literal["regulatory_question", "registry_action", "clarification", "out_of_scope"]
 
 

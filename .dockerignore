@@ -1,0 +1,52 @@
+
+# Version control
+.git
+.gitignore
+
+# IDEs and editors
+.vs/
+.vscode/
+.idea/
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.coverage
+**/htmlcov/
+**/.venv/
+**/venv/
+**/env/
+**/*.egg-info/
+**/dist/
+**/build/
+
+# Node.js
+**/node_modules/
+**/.angular/
+**/.next/
+**/coverage/
+
+# .NET
+**/bin/
+**/obj/
+**/TestResults/
+
+# Environment and secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/*.pem
+**/*.key
+**/secrets/
+
+# Logs and temporary files
+**/*.log
+**/tmp/
+**/temp/
+
+# OS files
+.DS_Store
+Thumbs.db

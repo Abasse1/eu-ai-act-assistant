@@ -1,12 +1,11 @@
-from typing import Any, cast
-from typing_extensions import Protocol
+from typing import Any, Protocol, cast
 
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_analyzer.nlp_engine import NlpEngineProvider
-from presidio_anonymizer import AnonymizerEngine
-from presidio_anonymizer.entities import RecognizerResult as AnonymizerRecognizerResult
 from presidio_analyzer.predefined_recognizers import EmailRecognizer, PhoneRecognizer
+from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
+from presidio_anonymizer.entities import RecognizerResult as AnonymizerRecognizerResult
 
 from ai_service.contracts.conversation import Language
 

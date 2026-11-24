@@ -1,7 +1,8 @@
-from typing import Any, Awaitable, cast
+from collections.abc import Awaitable
+from typing import Any, cast
 
-from pydantic import HttpUrl
 import pytest
+from pydantic import HttpUrl
 
 from ai_service.agent.generation import InvalidAnswerCitationError
 from ai_service.agent.graph import build_assistant_graph

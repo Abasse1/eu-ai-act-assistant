@@ -2,19 +2,19 @@ import logging
 
 from fastapi import FastAPI
 from opentelemetry import trace
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+from opentelemetry.instrumentation.logging.handler import LoggingHandler
 from opentelemetry.propagate import set_global_textmap
+from opentelemetry.sdk._logs import LoggerProvider
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
-from opentelemetry.instrumentation.logging.handler import LoggingHandler
-from opentelemetry.sdk._logs import LoggerProvider
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry._logs import set_logger_provider
 
 from ai_service.config import get_settings
 from ai_service.metrics import configure_metrics
@@ -34,7 +34,7 @@ def configure_observability(app: FastAPI) -> None:
     tracer_provider.add_span_processor(
         BatchSpanProcessor(
             OTLPSpanExporter(
-                endpoint=settings.otl_exporter_otlp_endpoint,
+                endpoint=settings.otel_exporter_otlp_endpoint,
                 insecure=True,
             )
         )
@@ -47,7 +47,7 @@ def configure_observability(app: FastAPI) -> None:
     logger_provider.add_log_record_processor(
         BatchLogRecordProcessor(
             OTLPLogExporter(
-                endpoint=settings.otl_exporter_otlp_endpoint,
+                endpoint=settings.otel_exporter_otlp_endpoint,
                 insecure=True,
             )
         )
@@ -69,5 +69,5 @@ def configure_observability(app: FastAPI) -> None:
     configure_metrics(
         app=app,
         resource=resource,
-        endpoint=settings.otl_exporter_otlp_endpoint,
+        endpoint=settings.otel_exporter_otlp_endpoint,
     )

@@ -1,16 +1,16 @@
 import logging
-from collections.abc import AsyncIterator, Awaitable
-from typing import Callable, cast
+from collections.abc import AsyncIterator, Awaitable, Callable
+from typing import cast
 
 from langgraph.graph.state import CompiledStateGraph
 
 from ai_service.agent.state import AssistantTurnState
-from ai_service.application.assistant_turn import AssistantTurnProcessor, AsyncAssistantGraph
+from ai_service.application.ports.assistant_turn import AssistantTurnProcessor, AsyncAssistantGraph
 from ai_service.contracts.conversation import AssistantAnswer, AssistantTurnRequest
 from ai_service.contracts.streaming import (
+    CitationEvent,
     CompletedEvent,
     ContentEvent,
-    CitationEvent,
     FieldEvent,
     StreamEvent,
 )

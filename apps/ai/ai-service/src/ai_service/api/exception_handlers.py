@@ -1,5 +1,5 @@
-from collections.abc import Mapping
 import logging
+from collections.abc import Mapping
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError

@@ -2,7 +2,6 @@ from typing import Literal
 
 from ai_service.contracts.conversation import Language
 
-
 StandardResponseType = Literal[
     "clarification",
     "out_of_scope",

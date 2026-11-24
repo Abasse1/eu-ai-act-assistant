@@ -1,8 +1,9 @@
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID
 
-from pydantic import HttpUrl
 import pytest
+from langgraph.graph.state import CompiledStateGraph
+from pydantic import HttpUrl
 
 from ai_service.agent.generation import InvalidAnswerCitationError
 from ai_service.agent.graph import build_assistant_graph
@@ -10,8 +11,6 @@ from ai_service.agent.state import AssistantTurnState
 from ai_service.contracts.conversation import AssistantAnswer, Citation
 from ai_service.contracts.retrieval import RetrievedDocument
 from ai_service.contracts.routing import RequestRoutingResult
-from langgraph.graph.state import CompiledStateGraph
-from ai_service.agent.state import AssistantTurnState
 
 
 def create_state(question: str) -> AssistantTurnState:
@@ -137,7 +136,7 @@ async def test_regulatory_question_rejects_unsupported_citations() -> None:
         document_title="Regulation (EU) 2024/1689",
         article="Article 9",
         version="2024",
-        source_url= HttpUrl("https://eur-lex.europa.eu/eli/reg/2024/1689/oj"),
+        source_url=HttpUrl("https://eur-lex.europa.eu/eli/reg/2024/1689/oj"),
     )
 
     retriever = Mock()

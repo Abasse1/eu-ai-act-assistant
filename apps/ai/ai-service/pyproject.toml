@@ -14,6 +14,7 @@ dependencies = [
     "langfuse>=5.1.0",
     "langgraph>=1.2.20",
     "langgraph-checkpoint-postgres>=3.2.0",
+    "mcp>=2.3.0",
     "opentelemetry-api>=1.45.2",
     "opentelemetry-exporter-otlp>=1.45.2",
     "opentelemetry-instrumentation-fastapi>=0.66b2",
@@ -27,10 +28,11 @@ dependencies = [
     "torch>=2.15.0",
     "transformers>=5.22.1",
     "uvicorn[standard]>=0.54.0",
+    "huggingface-hub>=2.4.0",
 ]
 
 [project.scripts]
-ai-service = "ai_service:main"
+ai-service = "ai_service.main:main"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
@@ -75,3 +77,16 @@ show_error_codes = true
 prompt_injection_detection_enabled = true
 prompt_injection_threshold = 0.85
 prompt_injection_model = ""
+
+[tool.pytest.ini_options]
+anyio_mode = "auto"
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

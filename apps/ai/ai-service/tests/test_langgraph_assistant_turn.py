@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from pydantic import HttpUrl
 import pytest
+from pydantic import HttpUrl
 
 from ai_service.agent.state import AssistantTurnState
 from ai_service.application.langgraph_assistant_turn import (

@@ -1,5 +1,5 @@
 from ai_service.agent.state import AssistantTurnState
-from ai_service.security.prompt_injection import PromptInjectionDetector
+from ai_service.application.ports.prompt_injection import PromptInjectionDetector
 
 
 class PromptInjectionDetectedError(ValueError):

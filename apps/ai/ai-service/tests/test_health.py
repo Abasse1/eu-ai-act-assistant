@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from ai_service.main import app
+from ai_service.app import app
 
 
 def test_liveness_returns_alive() -> None:

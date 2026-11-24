@@ -1,13 +1,14 @@
-from datetime import datetime, timezone
-from opentelemetry import trace
 import json
 import logging
+from datetime import UTC, datetime
+
+from opentelemetry import trace
 
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_entry = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
